@@ -1,6 +1,8 @@
 import type { DomainRegistry as TypeChainDomainRegistryContract } from "./typechain/DomainRegistry";
 import type {
   OrderStruct,
+  AdvancedOrderStruct,
+  CriteriaResolverStruct,
   Seaport as TypeChainSeaportContract,
 } from "./typechain/Seaport";
 import {
@@ -14,7 +16,7 @@ import {
   PayableOverrides,
   PopulatedTransaction,
 } from "ethers";
-import { ItemType, OrderType } from "./constants";
+import { ItemType, OrderType, Side } from "./constants";
 import type { ERC721 } from "./typechain/ERC721";
 import type { ERC20 } from "./typechain/ERC20";
 
@@ -265,6 +267,14 @@ export type MatchOrdersFulfillment = {
   considerationComponents: MatchOrdersFulfillmentComponent[];
 };
 
+export interface CriteriaResolver {
+  orderIndex: number;
+  side: Side;
+  index: number;
+  identifier: string;
+  criteriaProof: string[];
+}
+
 // Overrides matchOrders types to fix fulfillments type which is generated
 // by TypeChain incorrectly
 export type SeaportContract = TypeChainSeaportContract & {
@@ -306,6 +316,61 @@ export type SeaportContract = TypeChainSeaportContract & {
   populateTranscation: TypeChainSeaportContract["populateTransaction"] & {
     matchOrders(
       orders: OrderStruct[],
+      fulfillments: MatchOrdersFulfillment[],
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+  };
+} & {
+  encodeFunctionData(
+    functionFragment: "matchAdvancedOrders",
+    values: [
+      AdvancedOrderStruct[],
+      CriteriaResolverStruct[],
+      MatchOrdersFulfillment[]
+    ]
+  ): string;
+
+  matchAdvancedOrders(
+    advancedOrders: AdvancedOrderStruct[],
+    criteriaResolvers: CriteriaResolverStruct[],
+    fulfillments: MatchOrdersFulfillment[],
+    overrides?: PayableOverrides & { from?: string | Promise<string> },
+    domain?: string
+  ): Promise<ContractTransaction>;
+
+  functions: TypeChainSeaportContract["functions"] & {
+    matchAdvancedOrders(
+      advancedOrders: AdvancedOrderStruct[],
+      criteriaResolvers: CriteriaResolverStruct[],
+      fulfillments: MatchOrdersFulfillment[],
+      overrides?: PayableOverrides & { from?: string | Promise<string> },
+      domain?: string
+    ): Promise<ContractTransaction>;
+  };
+
+  callStatic: TypeChainSeaportContract["callStatic"] & {
+    matchAdvancedOrders(
+      advancedOrders: AdvancedOrderStruct[],
+      criteriaResolvers: CriteriaResolverStruct[],
+      fulfillments: MatchOrdersFulfillment[],
+      overrides?: PayableOverrides & { from?: string | Promise<string> },
+      domain?: string
+    ): Promise<ContractTransaction>;
+  };
+
+  estimateGas: TypeChainSeaportContract["estimateGas"] & {
+    matchAdvancedOrders(
+      advancedOrders: AdvancedOrderStruct[],
+      criteriaResolvers: CriteriaResolverStruct[],
+      fulfillments: MatchOrdersFulfillment[],
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+  };
+
+  populateTransaction: TypeChainSeaportContract["populateTransaction"] & {
+    matchAdvancedOrders(
+      advancedOrders: AdvancedOrderStruct[],
+      criteriaResolvers: CriteriaResolverStruct[],
       fulfillments: MatchOrdersFulfillment[],
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

@@ -41,6 +41,8 @@ import type {
   MatchOrdersFulfillment,
   SeaportContract,
   Signer,
+  AdvancedOrder,
+  CriteriaResolver,
 } from "./types";
 import { getApprovalActions } from "./utils/approval";
 import {
@@ -941,6 +943,33 @@ export class Seaport {
       this.contract.connect(signer),
       "matchOrders",
       [orders, fulfillments, overrides],
+      domain
+    );
+  }
+
+  public matchAdvancedOrders({
+    advancedOrders,
+    criteriaResolvers,
+    fulfillments,
+    overrides,
+    accountAddress,
+    domain = "",
+  }: {
+    advancedOrders: AdvancedOrder[];
+    criteriaResolvers: CriteriaResolver[];
+    fulfillments: MatchOrdersFulfillment[];
+    overrides?: PayableOverrides;
+    accountAddress?: string;
+    domain?: string;
+  }): TransactionMethods<
+    ContractMethodReturnType<SeaportContract, "matchAdvancedOrders">
+  > {
+    const signer = this._getSigner(accountAddress);
+
+    return getTransactionMethods(
+      this.contract.connect(signer),
+      "matchAdvancedOrders",
+      [advancedOrders, criteriaResolvers, fulfillments, overrides],
       domain
     );
   }
